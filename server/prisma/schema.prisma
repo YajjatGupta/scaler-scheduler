@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  CANCELLED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  avatarUrl     String?
+  timezone      String         @default("Asia/Kolkata")
+  eventTypes    EventType[]
+  availability  Availability?
+  meetings      Meeting[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model EventType {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  slug        String    @unique
+  description String?
+  duration    Int
+  color       String    @default("#006BFF")
+  isActive    Boolean   @default(true)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meetings    Meeting[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Availability {
+  id         String                 @id @default(cuid())
+  userId     String                 @unique
+  timezone   String
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeklyDays AvailabilityDay[]
+  overrides  AvailabilityOverride[]
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+}
+
+model AvailabilityDay {
+  id             String       @id @default(cuid())
+  availabilityId String
+  dayOfWeek      Int
+  isEnabled      Boolean      @default(true)
+  startTime      String
+  endTime        String
+  availability   Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+
+  @@unique([availabilityId, dayOfWeek])
+}
+
+model AvailabilityOverride {
+  id             String       @id @default(cuid())
+  availabilityId String
+  date           DateTime
+  isEnabled      Boolean      @default(true)
+  startTime      String?
+  endTime        String?
+  availability   Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+
+  @@unique([availabilityId, date])
+}
+
+model Meeting {
+  id            String        @id @default(cuid())
+  userId        String
+  eventTypeId   String
+  inviteeName   String
+  inviteeEmail  String
+  inviteeNotes  String?
+  startTime     DateTime
+  endTime       DateTime
+  timezone      String
+  status        MeetingStatus @default(SCHEDULED)
+  cancelledAt   DateTime?
+  cancelReason  String?
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType     EventType     @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId, startTime, endTime])
+  @@index([eventTypeId, startTime])
+}
