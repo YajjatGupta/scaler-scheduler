@@ -1,19 +1,17 @@
 :root {
   font-family: "Segoe UI", "Inter", sans-serif;
   color: #0f172a;
-  background:
-    radial-gradient(circle at top left, rgba(0, 107, 255, 0.12), transparent 30%),
-    linear-gradient(180deg, #f3f7ff 0%, #f8fafc 35%, #eef4ff 100%);
+  background: #ffffff;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light;
-  --border: #dbe5f3;
+  --border: #d6e0ef;
   --surface: rgba(255, 255, 255, 0.92);
   --text-muted: #5b6b84;
-  --primary: #006bff;
-  --primary-dark: #0f4dcc;
+  --primary: #0b69ff;
+  --primary-dark: #0858d1;
   --danger: #c2410c;
-  --shadow: 0 22px 45px rgba(31, 51, 90, 0.1);
+  --shadow: 0 18px 40px rgba(31, 51, 90, 0.08);
 }
 
 * {
@@ -44,17 +42,26 @@ textarea {
 
 .shell {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 240px 1fr;
   min-height: 100vh;
 }
 
+.shell.collapsed {
+  grid-template-columns: 88px 1fr;
+}
+
 .sidebar {
-  padding: 24px;
-  background: rgba(10, 24, 52, 0.92);
-  color: #f8fbff;
+  padding: 22px 8px 18px;
+  background: #ffffff;
+  color: #102a51;
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
+}
+
+.sidebar.collapsed {
+  padding-inline: 6px;
 }
 
 .brand,
@@ -68,6 +75,13 @@ textarea {
   flex-wrap: wrap;
 }
 
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
 .brand-mark {
   width: 42px;
   height: 42px;
@@ -77,6 +91,7 @@ textarea {
   place-items: center;
   font-weight: 700;
   box-shadow: 0 12px 24px rgba(0, 107, 255, 0.35);
+  color: #fff;
 }
 
 .brand p,
@@ -96,37 +111,134 @@ textarea {
 
 .brand p,
 .sidebar-card p {
-  color: inherit;
+  color: var(--primary);
   font-weight: 700;
+}
+
+.brand span {
+  color: var(--text-muted);
 }
 
 .nav {
   display: grid;
   gap: 8px;
+  padding: 0 8px;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 14px;
+  padding: 14px 18px;
   border-radius: 14px;
-  color: #bfd2f5;
+  color: #15345f;
+  font-weight: 600;
 }
 
 .nav-link.active,
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: #edf3fb;
+  color: var(--primary);
 }
 
 .sidebar-card {
   margin-top: auto;
   padding: 18px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: #f4f7fb;
   display: grid;
   gap: 10px;
+  color: #15345f;
+  border: 1px solid var(--border);
+}
+
+.sidebar-card.clickable:hover {
+  background: #eef4ff;
+}
+
+.sidebar-card.disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.sidebar-card:disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.sidebar-toggle-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #173864;
+}
+
+.sidebar-toggle-button:hover {
+  background: #eef3fb;
+}
+
+.sidebar.collapsed .sidebar-toggle-button svg {
+  transform: rotate(180deg);
+}
+
+.sidebar-create-button {
+  margin: 0 8px;
+  justify-content: center;
+  background: #fff;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+}
+
+.sidebar-create-button:hover {
+  background: #eef4ff;
+}
+
+.shell.collapsed .brand p,
+.shell.collapsed .brand span,
+.shell.collapsed .nav-link span,
+.shell.collapsed .sidebar-create-button span,
+.shell.collapsed .sidebar-card p,
+.shell.collapsed .sidebar-card > span,
+.shell.collapsed .sidebar-card .inline-icon span {
+  display: none;
+}
+
+.shell.collapsed .brand {
+  justify-content: center;
+}
+
+.shell.collapsed .sidebar-header {
+  flex-direction: column;
+  gap: 10px;
+  padding-inline: 0;
+}
+
+.shell.collapsed .nav {
+  padding-inline: 0;
+}
+
+.shell.collapsed .nav-link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.shell.collapsed .sidebar-create-button {
+  width: 52px;
+  height: 52px;
+  margin-inline: auto;
+  padding: 0;
+}
+
+.shell.collapsed .sidebar-card {
+  padding: 14px 10px;
+  justify-items: center;
+}
+
+.shell.collapsed .sidebar-card .inline-icon {
+  justify-content: center;
 }
 
 .content,
@@ -295,6 +407,10 @@ textarea {
   border: 1px solid #fecaca;
 }
 
+.booking-banner {
+  width: min(1320px, 100%);
+}
+
 .pill {
   padding: 8px 12px;
   border-radius: 999px;
@@ -316,13 +432,14 @@ textarea {
   min-height: 100vh;
   display: grid;
   place-items: center;
+  gap: 16px;
 }
 
 .booking-card {
-  width: min(1180px, 100%);
+  width: min(1320px, 100%);
   padding: 0;
   display: grid;
-  grid-template-columns: 320px 1.2fr 340px;
+  grid-template-columns: 320px minmax(440px, 1fr) minmax(360px, 420px);
   overflow: hidden;
 }
 
@@ -333,9 +450,21 @@ textarea {
   padding: 32px;
 }
 
+.booking-form {
+  min-width: 0;
+}
+
 .booking-summary {
   background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
   border-right: 1px solid var(--border);
+}
+
+.booking-options-select {
+  margin-top: 4px;
+}
+
+.booking-options-select select {
+  margin-top: 8px;
 }
 
 .booking-picker {
@@ -435,8 +564,12 @@ textarea {
     padding: 18px;
   }
 
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
   .sidebar {
-    padding: 18px;
+    padding: 18px 8px;
   }
 
   .form-row,

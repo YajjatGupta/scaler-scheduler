@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CalendarMonth } from "../components/CalendarMonth";
 import { api } from "../lib/api";
-import type { BookingMonth } from "../types";
+import type { BookingMonth, EventType } from "../types";
 
 export function BookingPage() {
   const { slug = "" } = useParams();
@@ -18,6 +18,7 @@ export function BookingPage() {
   const [inviteeNotes, setInviteeNotes] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [eventOptions, setEventOptions] = useState<EventType[]>([]);
 
   useEffect(() => {
     async function loadBookingData() {
@@ -38,6 +39,19 @@ export function BookingPage() {
     void loadBookingData();
   }, [slug, month]);
 
+  useEffect(() => {
+    async function loadEventOptions() {
+      try {
+        const data = await api<EventType[]>("/event-types");
+        setEventOptions(data);
+      } catch {
+        setEventOptions([]);
+      }
+    }
+
+    void loadEventOptions();
+  }, []);
+
   const selectedDay = useMemo(
     () => bookingData?.days.find((day) => day.date === selectedDate),
     [bookingData, selectedDate]
@@ -57,7 +71,7 @@ export function BookingPage() {
         method: "POST",
         body: {
           eventTypeId: bookingData.eventType.id,
-          startTime: selectedTime,
+          startTime: new Date(selectedTime).toISOString(),
           timezone: bookingData.availability.timezone,
           inviteeName,
           inviteeEmail,
@@ -75,8 +89,8 @@ export function BookingPage() {
 
   return (
     <div className="booking-shell">
+      {error ? <div className="banner error booking-banner">{error}</div> : null}
       <div className="booking-card">
-        {error ? <div className="banner error">{error}</div> : null}
         {bookingData ? (
           <>
             <section className="booking-summary">
@@ -89,6 +103,21 @@ export function BookingPage() {
               </div>
               <h1>{bookingData.eventType.name}</h1>
               <p>{bookingData.eventType.description}</p>
+              {eventOptions.length > 1 ? (
+                <label className="booking-options-select">
+                  Other booking options
+                  <select
+                    value={slug}
+                    onChange={(event) => navigate(`/book/${event.target.value}`)}
+                  >
+                    {eventOptions.map((eventType) => (
+                      <option key={eventType.id} value={eventType.slug}>
+                        {eventType.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               <div className="summary-meta">
                 <span className="inline-icon">
                   <Clock3 size={16} />

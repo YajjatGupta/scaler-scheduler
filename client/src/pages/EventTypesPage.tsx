@@ -1,14 +1,16 @@
 import { Copy, Pencil, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { EventTypeForm } from "../components/EventTypeForm";
 import { api } from "../lib/api";
 import type { EventType } from "../types";
 
 export function EventTypesPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [eventTypes, setEventTypes] = useState<EventType[]>([]);
   const [editing, setEditing] = useState<EventType | null>(null);
   const [error, setError] = useState("");
+  const formContainerRef = useRef<HTMLElement | null>(null);
 
   async function loadEventTypes() {
     try {
@@ -22,6 +24,16 @@ export function EventTypesPage() {
   useEffect(() => {
     void loadEventTypes();
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("create") !== "1") {
+      return;
+    }
+
+    setEditing(null);
+    formContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setSearchParams({});
+  }, [searchParams, setSearchParams]);
 
   async function createEventType(payload: {
     name: string;
@@ -77,11 +89,13 @@ export function EventTypesPage() {
       {error ? <div className="banner error">{error}</div> : null}
 
       <section className="grid two">
+        <section ref={formContainerRef}>
         <EventTypeForm
           eventType={editing}
           onSubmit={editing ? updateEventType : createEventType}
           onCancel={editing ? () => setEditing(null) : undefined}
         />
+        </section>
 
         <div className="card list-card">
           <div className="card-header">

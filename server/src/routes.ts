@@ -284,8 +284,7 @@ router.post("/bookings", async (req, res, next) => {
       return res.status(400).json({ message: "Only future time slots can be booked." });
     }
 
-    const meeting = await prisma.$transaction(
-      async (tx) => {
+    const meeting = await prisma.$transaction(async (tx) => {
         const eventType = await tx.eventType.findUnique({
           where: { id: payload.eventTypeId }
         });
@@ -293,8 +292,6 @@ router.post("/bookings", async (req, res, next) => {
         if (!eventType) {
           throw new Error("EVENT_TYPE_NOT_FOUND");
         }
-
-        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${eventType.userId}))`;
 
         const availability = await tx.availability.findUnique({
           where: { userId: eventType.userId },
@@ -364,11 +361,7 @@ router.post("/bookings", async (req, res, next) => {
             eventType: true
           }
         });
-      },
-      {
-        isolationLevel: Prisma.TransactionIsolationLevel.Serializable
-      }
-    );
+      });
 
     return res.status(201).json(meeting);
   } catch (error) {
