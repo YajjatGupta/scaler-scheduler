@@ -58,6 +58,65 @@ npm run dev
 - Frontend: `http://localhost:5173`
 - API: `http://localhost:4000/api`
 
+## Deployment
+
+Recommended split for this repo:
+
+- Frontend: Vercel
+- Backend API: Render
+- Database: Render Postgres
+
+### Frontend on Vercel
+
+1. Import the repo into Vercel.
+2. Set the project root directory to [`client`](c:\Users\Yajat Gupta\OneDrive\Desktop\Study\Hackathon\Scaler\client).
+3. Framework preset: `Vite`.
+4. Set environment variable:
+
+```bash
+VITE_API_URL=https://your-render-api.onrender.com/api
+```
+
+5. Deploy.
+
+`client/vercel.json` is included so React Router routes rewrite to `index.html`.
+
+### Backend on Render
+
+1. Create a new Blueprint deployment from this repo, or create a Node web service manually from [`server`](c:\Users\Yajat Gupta\OneDrive\Desktop\Study\Hackathon\Scaler\server).
+2. If using the included [`render.yaml`](c:\Users\Yajat Gupta\OneDrive\Desktop\Study\Hackathon\Scaler\render.yaml), Render will provision:
+   - a Node API service
+   - a PostgreSQL database
+3. Set `CLIENT_URL` on the API service to your deployed Vercel URL.
+4. Deploy.
+
+Render service settings if configuring manually:
+
+```bash
+Root Directory: server
+Build Command: npm install && npm run prisma:generate && npm run build
+Start Command: npm run start:deploy
+```
+
+Required backend environment variables:
+
+```bash
+DATABASE_URL=postgresql://...
+CLIENT_URL=https://your-vercel-app.vercel.app
+PORT=10000
+```
+
+### Seed Production or Preview Data
+
+After the database is created, run the seed once from the Render shell or a local machine pointed at the deployed database:
+
+```bash
+npm install
+npm run prisma:seed
+```
+
+If you do not seed the database, the admin dashboard will show API errors because the app expects a default user and sample records.
+
 ## Available Scripts
 
 ```bash
